@@ -70,25 +70,14 @@ public class FrontController extends HttpServlet
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		//BusinessCommands helper = new BusinessCommands();
-		
 		try
 		{
 			String reqURI = request.getRequestURI();
 			ActionContainer actionContainerParam = new ActionContainer();
 			Class theAction = Class.forName(actionMap.getActionclass(reqURI));
-			Method foundProcessMethod = findProcessMethod(theAction);
-			
-			// Console test output
-			System.out.println(actionMap.getActionclass(reqURI));
-			System.out.println(theAction.getClass().toString());
-			System.out.println(theAction.getName());
-			System.out.println(foundProcessMethod.getName());
-			
-			foundProcessMethod.invoke(theAction.getClass(), actionContainerParam);
-			//foundProcessMethod.invoke(theAction.get, actionContainerParam);
-			//foundProcessMethod.invoke(theAction.getName(), actionContainerParam);
-			//foundProcessMethod.invoke(theAction, actionContainerParam);
-			//foundProcessMethod.invoke(getClass(), actionContainerParam);
+			Object theActionObject = theAction.newInstance();
+			Method foundProcessMethod = findProcessMethod(theAction);	
+			foundProcessMethod.invoke(theActionObject, actionContainerParam);
 		}
 		catch (Exception e)
 		{
@@ -100,8 +89,23 @@ public class FrontController extends HttpServlet
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		// WILL HAVE TO ADD MORE... JUST A COPY AND PASTE FROM THE doGet for now
+		try
+		{
+			String reqURI = request.getRequestURI();
+			ActionContainer actionContainerParam = new ActionContainer();
+			Class theAction = Class.forName(actionMap.getActionclass(reqURI));
+			Object theActionObject = theAction.newInstance();
+			Method foundProcessMethod = findProcessMethod(theAction);	
+			foundProcessMethod.invoke(theActionObject, actionContainerParam);
+		}
+		catch (Exception e)
+		{
+			System.out.println("CAUGHT!!!");
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -122,7 +126,7 @@ public class FrontController extends HttpServlet
 		{
 			if (methods[i].getName().equals("process"));
 			{
-				System.out.println(methods[i].toString());
+				//System.out.println(methods[i].toString());
 				return methods[i];
 			}
 		}
