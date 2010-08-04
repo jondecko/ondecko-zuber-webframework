@@ -1,21 +1,15 @@
 package testCode;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import actionPackage.*;
 import junit.framework.TestCase;
 
 public class ActionContainerTest extends TestCase 
 {
 	ActionContainer container1;
-	ActionContainer container2;
 	
 	public ActionContainerTest()
 	{
-		container1 = new ActionContainer();
-		container2 = new ActionContainer("/SearchByMLS.do", 
-				"lab131.mlsapp.ListMlsAction");
+		container1 = new ActionContainer(ActionResult.SUCESS);
 	}
 	
 	public void testBasic()
@@ -55,36 +49,5 @@ public class ActionContainerTest extends TestCase
 		assertEquals(null, container1.getParam("cat"));
 		assertEquals(null, container1.getParam("leet"));
 		assertEquals(null, container1.getParam("snake"));	
-	}
-	
-	public void testConstructorInput()
-	{
-		assertEquals(0, container2.paramCount());
-		assertEquals("/SearchByMLS.do", container2.getUrlPattern());
-		assertEquals("lab131.mlsapp.ListMlsAction", container2.getActionClass());	
-	}
-	
-	public void testResultHandlers()
-	{
-		assertEquals(0, container2.paramCount());
-		container2.addResultHandler("SUCCESS", "/ShowListings.jsp");
-		container2.addResultHandler("INPUT", "/SearchByMLS.html");
-		container2.addResultHandler("NOTFOUND", "/NotFound.jsp");
-		assertEquals("/ShowListings.jsp", container2.getResultHandler("SUCCESS"));
-		assertEquals("/SearchByMLS.html", container2.getResultHandler("INPUT"));
-		assertEquals("/NotFound.jsp", container2.getResultHandler("NOTFOUND"));
-	}
-	
-	public void testOutput()
-	{
-		List<String> output = new ArrayList<String>();
-		output.add("max");
-		output.add("lady");
-		output.add("spike");
-		container2.addOutput("dogs", output);
-		List<String> testList = (List<String>)container2.getOutputs().get("dogs");
-		assertEquals("max", testList.get(0));
-		assertEquals("lady", testList.get(1));
-		assertEquals("spike", testList.get(2));
 	}
 }

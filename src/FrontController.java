@@ -1,7 +1,9 @@
 import java.io.IOException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -27,7 +29,6 @@ public class FrontController extends HttpServlet
      */
     public FrontController() {
         super();
-        // TODO Auto-generated constructor stub
     }
     
 	@Override
@@ -36,29 +37,32 @@ public class FrontController extends HttpServlet
 		// Hard-code mapping solution for the action map
 		// this can be put into an XML document later and parsed if needed
 		// The ActionMap class should still be used for the mapping
-		Map<String, String> resMap = new HashMap<String, String>();
+		
 		actionMap = new ActionMap();
 		// ListEmployeesAction
-		resMap.put("SUCCES", "/ListEmployees.jsp");
-		resMap.put("INPUT", "/ListEmployees.jsp");
+		Map<ActionResult, String> resMap = new HashMap<ActionResult, String>();
+		resMap.put(ActionResult.SUCESS, "/ListEmployees.jsp");
+		resMap.put(ActionResult.INPUT, "/ListEmployees.jsp");
 		actionMap.addAction("/ondecko-zuber-webframework/listEmp.do", 
 				"actionPackage.ListEmployeesAction", resMap);
 		// ListEmployeesByIdAction
-		resMap = new HashMap<String, String>();
-		resMap.put("SUCCES", "/ListEmployees.jsp");
-		resMap.put("INPUT", "/FormById.jsp");
+		Map<ActionResult, String> resMap2 = new HashMap<ActionResult, String>();
+		resMap2.put(ActionResult.SUCESS, "/ListEmployees.jsp");
+		resMap2.put(ActionResult.INPUT, "/FormById.jsp");
 		actionMap.addAction("/ondecko-zuber-webframework/listEmpById.do", 
-				"actionPackage.ListEmployeesByIdAction", resMap);
+				"actionPackage.ListEmployeesByIdAction", resMap2);
 		// ListEmployeesByTitleAction
-		resMap.put("SUCCES", "/ListEmployees.jsp");
-		resMap.put("INPUT", "/FormByTitle.jsp");
+		Map<ActionResult, String> resMap3 = new HashMap<ActionResult, String>();
+		resMap3.put(ActionResult.SUCESS, "/ListEmployees.jsp");
+		resMap3.put(ActionResult.INPUT, "/FormByTitle.jsp");
 		actionMap.addAction("/ondecko-zuber-webframework/listEmpByTitle.do", 
-				"actionPackage.ListEmployeesByTitleAction", resMap);
+				"actionPackage.ListEmployeesByTitleAction", resMap3);
 		// ListEmployeesByTitleAction
-		resMap.put("SUCCES", "/ListEmployeePayroll.jsp");
-		resMap.put("INPUT", "/ListEmployeesSelect.jsp");
+		Map<ActionResult, String> resMap4 = new HashMap<ActionResult, String>();
+		resMap4.put(ActionResult.SUCESS, "/ListEmployeePayroll.jsp");
+		resMap4.put(ActionResult.INPUT, "/ListEmployeesSelect.jsp");
 		actionMap.addAction("/ondecko-zuber-webframework/listEmpByPayroll.do", 
-				"actionPackage.ListEmployeesByPayrollAction", resMap);
+				"actionPackage.ListEmployeesByPayrollAction", resMap4);
 		// End of map creation
 		
 		super.init();
@@ -67,21 +71,28 @@ public class FrontController extends HttpServlet
 	/**
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@SuppressWarnings("unchecked")
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//BusinessCommands helper = new BusinessCommands();
 		try
 		{
+			// Get everything ready and sent to the proper action
 			String reqURI = request.getRequestURI();
-			ActionContainer actionContainerParam = new ActionContainer();
 			Class theAction = Class.forName(actionMap.getActionclass(reqURI));
 			Object theActionObject = theAction.newInstance();
-			Method foundProcessMethod = findProcessMethod(theAction);	
-			foundProcessMethod.invoke(theActionObject, actionContainerParam);
+			Method foundProcessMethod = findProcessMethod(theAction);
+			ActionContainer actionContainer = new ActionContainer(ActionResult.INPUT);
+			foundProcessMethod.invoke(theActionObject, actionContainer);
+						
+			// Get everything ready and sent to the proper view
+			String mappedResult = actionMap.getResult(reqURI, ActionResult.INPUT);
+			request.setAttribute("results", actionContainer.getOutputs().get("results"));
+			RequestDispatcher view = request.getRequestDispatcher(mappedResult);
+			view.forward(request, response);
 		}
 		catch (Exception e)
 		{
-			System.out.println("CAUGHT!!!");
+			System.out.println("doGet CAUGHT!!!");
 			e.printStackTrace();
 		}
 	}
@@ -89,21 +100,35 @@ public class FrontController extends HttpServlet
 	/**
 	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse response)
 	 */
+	@SuppressWarnings("unchecked")
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		// WILL HAVE TO ADD MORE... JUST A COPY AND PASTE FROM THE doGet for now
 		try
 		{
 			String reqURI = request.getRequestURI();
-			ActionContainer actionContainerParam = new ActionContainer();
 			Class theAction = Class.forName(actionMap.getActionclass(reqURI));
 			Object theActionObject = theAction.newInstance();
-			Method foundProcessMethod = findProcessMethod(theAction);	
-			foundProcessMethod.invoke(theActionObject, actionContainerParam);
+			Method foundProcessMethod = findProcessMethod(theAction);
+			ActionContainer actionContainer = new ActionContainer(ActionResult.SUCESS);
+			
+			String param;
+			Enumeration temp = request.getParameterNames();
+			while(temp.hasMoreElements())
+			{
+				param = temp.nextElement().toString();
+				actionContainer.addParam(param, request.getParameter(param));
+			}
+			foundProcessMethod.invoke(theActionObject, actionContainer);
+			
+			// Get everything ready and sent to the proper view
+			String mappedResult = actionMap.getResult(reqURI, ActionResult.SUCESS);
+			request.setAttribute("results", actionContainer.getOutputs().get("results"));
+			RequestDispatcher view = request.getRequestDispatcher(mappedResult);
+			view.forward(request, response);
 		}
 		catch (Exception e)
 		{
-			System.out.println("CAUGHT!!!");
+			System.out.println("doPost CAUGHT!!!");
 			e.printStackTrace();
 		}
 	}
@@ -112,13 +137,14 @@ public class FrontController extends HttpServlet
 	 * findProcessMethod function.
 	 * 
 	 * This helper function will scan though the class passed in and look for a method by the name of
-	 * "process".  The "process" method should be apart of any class that was implimented off of the
+	 * "process".  The "process" method should be apart of any class that was implemented off of the
 	 * Action base class.fs
 	 * 
 	 * @param classParam
 	 * @return
 	 * @throws Exception
 	 */
+	@SuppressWarnings("unchecked")
 	private static Method findProcessMethod(Class classParam) throws Exception
 	{
 		Method[] methods = classParam.getMethods();

@@ -2,5 +2,5 @@ package actionPackage;
 
 public interface Action 
 {
-	ActionResult process(ActionContainer data);
+	void process(ActionContainer data);
 }

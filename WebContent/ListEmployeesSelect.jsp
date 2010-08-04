@@ -9,10 +9,10 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
 </head>
 <body>
-
+<h2>ListEmployeesSelect</h2>
 <div class="main">
 	<jsp:include page="/includes/listingHeader.jsp" />
-	<form method="POST" action="FormPayroll">
+	<form method="POST" action="listEmpByPayroll.do">
 	<c:forEach var="result" items="${results}">
 		<div class="resultDiv">
 			<div class="cell">${result.EMPID}</div>

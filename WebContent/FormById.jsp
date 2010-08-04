@@ -12,7 +12,7 @@
 <h2>Form By Id</h2>
 <jsp:include page="/includes/homeLink.jsp" />
 
-<form method="POST" action="FormById">
+<form method="POST" action="listEmpById.do">
 ID: 
 <select name="id">
 	<c:forEach var="option" items="${results}">

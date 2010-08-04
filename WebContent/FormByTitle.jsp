@@ -13,7 +13,7 @@
 <h2>Form By Title</h2>
 <jsp:include page="/includes/homeLink.jsp" />
 
-<form method="POST" action="FormByTitle">
+<form method="POST" action="listEmpByTitle.do">
 Title:
 <select name="title">
 	<c:forEach var="option" items="${results}">
