@@ -19,6 +19,8 @@ public class ListEmployeesByPayrollAction implements Action
 			break;
 			
 		case SUCESS:
+			
+			//TODO: Fix me!
 			results = busHelper.ListByIDs((String[]) data.getParam("selections"));
 			data.addOutput("results", results.getResults());
 			break;
