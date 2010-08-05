@@ -19,7 +19,8 @@ public class ListEmployeesByIdAction implements Action
 			break;
 			
 		case SUCESS:
-			int id = Integer.parseInt((String) data.getParam("id"));
+			String[] temp = (String[]) data.getParam("id");
+			int id = Integer.parseInt(temp[0]);
 			results = busHelper.SearchByEmployeeID(id);
 			data.addOutput("results", results.getResults());
 			break;

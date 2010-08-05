@@ -123,7 +123,8 @@ public class BusinessCommands
     	input.execute();
     }
     
-    private void printRows(List<Map<String, Object>> rows)
+    @SuppressWarnings("unused")
+	private void printRows(List<Map<String, Object>> rows)
     {
     	String out;
     	for (Map<String, Object> resMap : rows)

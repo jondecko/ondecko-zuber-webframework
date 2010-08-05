@@ -19,7 +19,8 @@ public class ListEmployeesByTitleAction implements Action
 				break;
 				
 			case SUCESS:
-				String title = (String) data.getParam("title");
+				String[] temp = (String[]) data.getParam("title");
+				String title = temp[0];
 				results = busHelper.ListByTitle(title);
 				data.addOutput("results", results.getResults());
 				break;

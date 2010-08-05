@@ -116,7 +116,7 @@ public class FrontController extends HttpServlet
 			while(temp.hasMoreElements())
 			{
 				param = temp.nextElement().toString();
-				actionContainer.addParam(param, request.getParameter(param));
+				actionContainer.addParam(param, request.getParameterValues(param));
 			}
 			foundProcessMethod.invoke(theActionObject, actionContainer);
 			

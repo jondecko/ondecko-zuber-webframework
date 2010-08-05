@@ -141,6 +141,7 @@ public class ActionContainer
 	 * 
 	 * @param paramMap
 	 */
+	@SuppressWarnings("unchecked")
 	public void setParamMap(Map paramMap)
 	{
 		m_paramMap = paramMap;
